@@ -21,12 +21,13 @@ jobs:
 
     - name: Build with Maven
       run: mvn clean install
+      working-directory: .E:/sass/tronixpayadmin  # Specify the correct path to your project
 
     - name: Upload artifact
       uses: actions/upload-artifact@v2
       with:
         name: my-app
-        path: target/*.jar
+        path: .E:/sass/tronixpayadmin/target/*.jar  # Ensure the correct path
 
   deploy:
     runs-on: ubuntu-latest
