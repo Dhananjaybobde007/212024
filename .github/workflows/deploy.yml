@@ -60,5 +60,6 @@ jobs:
             # Get the latest JAR file
             # latest_jar=$(ls -t | grep .jar | head -n 1)
             # Run the latest JAR file
-            sudo java -jar userLogin.jar &
+            sudo java -jar admin8U.jar &
+            sudo java -jar tronixpay8U.jar &
             sleep 10
