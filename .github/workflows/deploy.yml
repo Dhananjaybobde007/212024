@@ -39,12 +39,12 @@ jobs:
             fi
 
             # Create the application directory if it doesn't exist
-            sudo mkdir -p /opt/myapp
+            sudo mkdir -p /home/ubuntu/212024
 
             sleep 5
           
             # removing all jar files in opt/myapp
-            sudo rm -f /opt/myapp/*.jar || echo "No JAR files to remove."
+            sudo rm -f /home/ubuntu/212024/*.jar || echo "No JAR files to remove."
             sleep 5
 
             # Move the JAR file to the application directory
