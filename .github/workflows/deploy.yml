@@ -31,20 +31,20 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
           
-            if ! java -version 2>&1 | grep -q "21"; then
-              echo "JDK 21 not found. Please install JDK 21."
+            if ! java -version 2>&1 | grep -q "17"; then
+              echo "JDK 17 not found. Please install JDK 17."
               exit 1
             else
-              echo "JDK 21 is already installed."
+              echo "JDK 17 is already installed."
             fi
 
             # Create the application directory if it doesn't exist
-            sudo mkdir -p /opt/myapp
+            sudo mkdir -p /home/ubuntu/212024
 
             sleep 5
           
             # removing all jar files in opt/myapp
-            sudo rm -f /opt/myapp/*.jar || echo "No JAR files to remove."
+            sudo rm -f /home/ubuntu/212024/*.jar || echo "No JAR files to remove."
             sleep 5
 
             # Move the JAR file to the application directory
@@ -60,5 +60,6 @@ jobs:
             # Get the latest JAR file
             # latest_jar=$(ls -t | grep .jar | head -n 1)
             # Run the latest JAR file
-            sudo java -jar userLogin.jar &
+            sudo java -jar admin8U.jar &
+            sudo java -jar tronixpay8U.jar &
             sleep 10
