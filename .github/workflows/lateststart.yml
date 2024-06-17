@@ -1,0 +1,61 @@
+name: Deploy-and-Start
+
+on:
+  workflow_run:
+    workflows: ["Stop-and-Clean"]
+    types:
+      - completed
+
+  workflow_dispatch:
+
+jobs:
+  deploy-and-start:
+    name: Deploy New Application and Start
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout the repository
+      uses: actions/checkout@v2
+
+    - name: Find the latest JAR file
+      id: find_latest_jar
+      run: |
+        latest_jar=$(find . -name "*.jar" | sort | tail -n 1)
+        if [ -z "$latest_jar" ]; then
+          echo "Error: No JAR file found in the repository."
+          exit 1
+        fi
+        echo "Latest JAR file found: $latest_jar"
+        echo "::set-output name=jar_path::$latest_jar"
+
+    - name: Deploy JAR to EC2
+      uses: easingthemes/ssh-deploy@main
+      env:
+        SSH_PRIVATE_KEY: ${{ secrets.EC2_SSH_KEY }}
+        REMOTE_HOST: ${{ secrets.HOST_DNS }}
+        REMOTE_USER: ${{ secrets.USERNAME }}
+        TARGET: /home/${{ secrets.USERNAME }}/app
+        
+    - name: Start new application
+      uses: appleboy/ssh-action@v0.1.7
+      with:
+        host: ${{ secrets.HOST_DNS }}
+        username: ${{ secrets.USERNAME }}
+        key: ${{ secrets.EC2_SSH_KEY }}
+        script: |
+          if ! java -version 2>&1 | grep -q "17"; then
+            echo "JDK 17 not found. Please install JDK 17."
+            exit 1
+          else
+            echo "JDK 17 is already installed."
+          fi
+          cd /home/ubuntu/2024
+          git pull https://github.com/manuo9/2024.git
+          latest_jars=$(find . -name "*.jar" | sort | tail -n 1)
+          echo "Extracted filename: $latest_jars"
+          # Navigate to the application directory and run the new JAR file
+          cd /home/${{ secrets.USERNAME }}/app
+          latest_jars=$(basename "$latest_jars")
+          sudo java -jar "$latest_jars" &
+          sleep 10
+          echo "New JAR file is running."
