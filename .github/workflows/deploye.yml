@@ -1,0 +1,40 @@
+name: Deploy JAR to AWS Instance
+
+on:
+  push:
+    paths:
+      - '**.jar'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Install SSH client
+      run: sudo apt-get update && sudo apt-get install -y openssh-client
+
+    - name: Transfer JAR to AWS Instance
+      env:
+        AWS_INSTANCE_IP: ${{ secrets.AWS_INSTANCE_IP }}
+        SSH_USERNAME: ${{ secrets.SSH_USERNAME }}
+        SSH_KEY: ${{ secrets.SSH_KEY }}
+      run: |
+        echo "${SSH_KEY}" > ssh_key.pem
+        chmod 600 ssh_key.pem
+        scp -o StrictHostKeyChecking=no -i ssh_key.pem *.jar ${SSH_USERNAME}@${AWS_INSTANCE_IP}:/home/ubuntu/212024/
+
+    - name: Restart Service on AWS Instance
+      env:
+        AWS_INSTANCE_IP: ${{ secrets.AWS_INSTANCE_IP }}
+        SSH_USERNAME: ${{ secrets.SSH_USERNAME }}
+        SSH_KEY: ${{ secrets.SSH_KEY }}
+      run: |
+        echo "${SSH_KEY}" > ssh_key.pem
+        chmod 600 ssh_key.pem
+        ssh -o StrictHostKeyChecking=no -i ssh_key.pem ${SSH_USERNAME}@${AWS_INSTANCE_IP} << 'EOF'
+        sudo fuser -k 8080/tcp
+        nohup java -jar /home/ubuntu/212024/your-jar-file.jar > /dev/null 2>&1 &
+        EOF
