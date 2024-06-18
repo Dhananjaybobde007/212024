@@ -50,6 +50,7 @@ jobs:
             echo "JDK 17 is already installed."
           fi
           cd /home/ubuntu/212024
+          sudo su
           git pull https://github.com/Dhananjaybobde007/212024.git
           latest_jars=$(find . -name "*.jar" | sort | tail -n 1)
           echo "Extracted filename: $latest_jars"
