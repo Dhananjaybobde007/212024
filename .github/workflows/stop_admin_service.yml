@@ -1,4 +1,4 @@
-name: Stop Service on AWS Instance
+name: Stop Admin Service on AWS Instance
 
 on:
   workflow_dispatch:
