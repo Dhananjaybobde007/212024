@@ -15,7 +15,7 @@ jobs:
     - name: Kill process on port 8080 and clean directory
       uses: appleboy/ssh-action@v0.1.0
       with:
-        host: ${{ secrets.HOST_DNS }}
+        host: ${{ secrets.AWS_INSTANCE_IP }}
         username: ${{ secrets.USERNAME }}
         key: ${{ secrets.SSH_KEY }}
         script: |
