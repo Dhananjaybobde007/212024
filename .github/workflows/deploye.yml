@@ -1,9 +1,7 @@
 name: Deploy JAR to AWS Instance
 
 on:
-  push:
-    paths:
-      - '**.jar'
+  workflow_dispatch:
 
 jobs:
   deploy:
