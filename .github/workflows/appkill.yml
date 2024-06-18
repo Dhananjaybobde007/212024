@@ -17,7 +17,7 @@ jobs:
       with:
         host: ${{ secrets.HOST_DNS }}
         username: ${{ secrets.USERNAME }}
-        key: ${{ secrets.EC2_SSH_KEY }}
+        key: ${{ secrets.SSH_KEY }}
         script: |
           kill_process_on_port() {
             local port=$1
