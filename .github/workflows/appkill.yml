@@ -1,0 +1,57 @@
+name: Stop and Clean for Port 8080
+
+on:
+  workflow_dispatch:
+
+jobs:
+  stop-and-clean-8080:
+    name: Stop Existing Application on Port 8080 and Clean Directory
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout the files
+      uses: actions/checkout@v2
+
+    - name: Kill process on port 8080 and clean directory
+      uses: appleboy/ssh-action@v0.1.0
+      with:
+        host: ${{ secrets.HOST_DNS }}
+        username: ${{ secrets.USERNAME }}
+        key: ${{ secrets.EC2_SSH_KEY }}
+        script: |
+          kill_process_on_port() {
+            local port=$1
+            PID=$(sudo lsof -t -i :$port)
+            if [[ ! -z "$PID" ]]; then
+              JAR_FILE=$(sudo lsof -p $PID | grep ".jar" | awk '{print $9}')
+              if [[ ! -z "$JAR_FILE" ]]; then
+                echo "Process on port $port with PID $PID is running JAR file: $JAR_FILE"
+              else
+                echo "Process on port $port with PID $PID is not associated with a JAR file."
+              fi
+              sudo kill -9 $PID
+              echo "Killed process on port $port with PID $PID"
+            else
+              echo "No processes found listening on port $port"
+            fi
+          }
+
+          # Kill process on port 8080
+          kill_process_on_port 8080
+
+          # Navigate to the application directory
+          cd /home/${{ secrets.USERNAME }}/app
+
+          # Remove all existing JAR files
+          sudo rm -f *.jar
+          echo "Old JAR files deleted."
+
+          # Verify deletion
+          jar_files=$(ls /home/${{ secrets.USERNAME }}/app/*.jar 2> /dev/null)
+          if [[ -z "$jar_files" ]]; then
+            echo "No JAR files present."
+          else
+            echo "Some JAR files are still present:"
+            echo "$jar_files"
+            exit 1
+          fi
